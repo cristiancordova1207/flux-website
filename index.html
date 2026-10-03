@@ -94,10 +94,8 @@
       <a href="#privacidad">Privacidad</a>
       <a href="#planes">Planes</a>
       <a href="#preguntas">Preguntas</a>
-      <button class="m-only" type="button" data-toast="El inicio de sesión en la web llegará pronto. Por ahora, inicia sesión desde FLUX para Windows.">Iniciar sesión</button>
     </nav>
     <div class="nav-cta">
-      <button class="btn btn-light btn-sm login" type="button" data-toast="El inicio de sesión en la web llegará pronto. Por ahora, inicia sesión desde FLUX para Windows.">Iniciar sesión</button>
       <a class="btn btn-primary btn-sm" data-download href="https://github.com/cristiancordova1207/flux-releases/releases/latest/download/FLUX-Setup.exe" aria-label="Descargar FLUX"><span>Descargar FLUX</span><svg class="i" aria-hidden="true"><use href="#i-down"/></svg></a>
       <button class="menu-btn" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu"><svg class="i bars" aria-hidden="true"><use href="#i-menu"/></svg><svg class="i x" aria-hidden="true"><use href="#i-x"/></svg></button>
     </div>
@@ -186,44 +184,39 @@
   <div class="wrap dlr-grid">
     <div class="rv">
       <span class="tag pink">Smart Downloader</span>
-      <h2 id="dlr-t">Descarga desde una URL.</h2>
-      <p class="lede">Pega una URL compatible y prepara tu contenido para descargar.</p>
+      <h2 id="dlr-t">Descarga tu video con FLUX.</h2>
+      <p class="lede">Pega el enlace de un video y comprueba su vista previa. La descarga se hace en la aplicación FLUX.</p>
       <form class="url-form" id="urlForm" novalidate>
         <svg class="i" aria-hidden="true"><use href="#i-link"/></svg>
-        <label class="sr" for="url">URL del contenido</label>
-        <input id="url" type="url" inputmode="url" placeholder="Pega aquí la URL..." autocomplete="off">
-        <button class="go" type="submit" aria-label="Analizar URL (demostración)"><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        <label class="sr" for="url">Enlace del video</label>
+        <input id="url" type="url" inputmode="url" placeholder="Pega aquí el enlace del video" autocomplete="off" maxlength="2048" required>
+        <button class="go" type="submit" aria-label="Detectar video"><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></button>
       </form>
       <div class="hints">
-        <span class="chip"><svg class="i" style="color:#6B5BE6" aria-hidden="true"><use href="#i-film"/></svg>Video</span>
-        <span class="chip"><svg class="i" style="color:#D14D93" aria-hidden="true"><use href="#i-music"/></svg>Solo audio</span>
-        <span class="chip"><svg class="i" style="color:#B7791F" aria-hidden="true"><use href="#i-sub"/></svg>Subtítulos</span>
-        <span class="chip"><svg class="i" style="color:#2B8FD0" aria-hidden="true"><use href="#i-layers"/></svg>Listas</span>
+        <span class="chip">YouTube</span><span class="chip">Vimeo</span><span class="chip">TikTok</span><span class="chip">SoundCloud</span><span class="chip">Dailymotion</span>
       </div>
     </div>
 
     <div class="result-wrap rv" style="--d:.08s">
-      <svg class="curve" viewBox="0 0 70 60" fill="none" aria-hidden="true"><path d="M2 50C20 50 30 12 62 12" stroke="currentColor" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round"/><path d="m56 6 7 6-7 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="curve" viewBox="0 0 70 60" fill="none" aria-hidden="true"><path d="M2 50C20 50 30 12 62 12" stroke="currentColor" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round"/></svg>
       <div class="float hide-m" style="top:-26px;right:-10px;background:#E9E5FF;color:#6B5BE6;width:52px;height:52px" aria-hidden="true"><svg class="i"><use href="#i-link"/></svg></div>
       <div class="result" id="result" aria-live="polite">
         <div class="result-inner">
           <div class="result-top">
-            <div class="thumb-lg"><svg class="scene" aria-hidden="true"><use href="#scene"/></svg><span class="play" aria-hidden="true"><svg class="i"><use href="#i-play"/></svg></span><span class="dur">12:34</span></div>
+            <div class="thumb-lg" id="dThumb"><svg class="scene" aria-hidden="true"><use href="#scene"/></svg></div>
             <div>
-              <h3>Título del video de ejemplo</h3>
-              <p class="meta">12:34 · 1080p</p>
-              <div class="badges"><span class="badge demo">Ejemplo</span><span class="badge">MP4</span><span class="badge">Estéreo</span></div>
+              <div class="badges" style="margin:0 0 10px"><span class="badge" id="dPlatform">Vista previa</span><span class="badge" id="dState">Esperando enlace</span></div>
+              <h3 id="dTitle">Pega un enlace para ver su vista previa</h3>
+              <p class="meta" id="dMeta">Mostramos el título y la miniatura públicos del video, si la plataforma los ofrece.</p>
             </div>
           </div>
-          <div class="opts">
-            <div class="field"><label for="q">Calidad</label><div class="select"><select id="q"><option>1080p</option><option>720p</option><option>480p</option><option>Solo audio</option></select><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></div></div>
-            <div class="field"><label for="f">Formato</label><div class="select"><select id="f"><option>MP4</option><option>WEBM</option><option>MP3</option><option>WAV</option></select><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></div></div>
-            <button class="btn btn-primary" type="button" data-toast="Interfaz de demostración. La descarga web estará disponible próximamente.">Descargar <svg class="i" aria-hidden="true"><use href="#i-down"/></svg></button>
+          <div class="opts opts-one">
+            <button class="btn btn-primary" id="dDownload" type="button" disabled>Descargar con FLUX <svg class="i" aria-hidden="true"><use href="#i-down"/></svg></button>
           </div>
         </div>
-        <div class="scan" aria-hidden="true"><span><i class="spin"></i>Analizando URL…</span></div>
+        <div class="scan" aria-hidden="true"><span><i class="spin"></i><b id="dStage">Analizando enlace…</b></span></div>
       </div>
-      <p class="demo-note"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg>Interfaz de demostración. La descarga web estará disponible próximamente.</p>
+      <p class="demo-note"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg>La web solo consulta información pública del enlace; la animación de análisis es de la interfaz. La descarga real se hace en la aplicación FLUX.</p>
     </div>
   </div>
 </section>
@@ -542,13 +535,13 @@
       <h2 id="plans-t">Elige el plan ideal para ti.</h2>
       <p class="lede">Empieza gratis y amplía cuando lo necesites.</p>
       <p class="plans-note"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg>Los créditos se reinician en cada período y no se acumulan.</p>
-      <p class="plans-note"><svg class="i" aria-hidden="true"><use href="#i-lock"/></svg>Los pagos todavía no están habilitados. Precios en USD.</p>
+      <p class="plans-note"><svg class="i" aria-hidden="true"><use href="#i-lock"/></svg>Precios en USD. El pago se hace con Stripe desde la aplicación FLUX, con tu cuenta (sección Planes, disponible a partir de FLUX 1.0.1). Puedes cancelar cuando quieras.</p>
     </div>
     <div class="plan-row">
       <div class="plan rv"><span class="ic mint"><svg class="i" aria-hidden="true"><use href="#i-spark"/></svg></span><span class="pname" style="color:#15803D">FREE</span><span class="cred">3 créditos/día</span><span class="price">$0</span><a class="btn btn-light btn-sm" data-download href="https://github.com/cristiancordova1207/flux-releases/releases/latest/download/FLUX-Setup.exe">Empezar gratis</a></div>
-      <div class="plan rv" style="--d:.05s"><span class="soon">Próximamente</span><span class="ic sky"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg></span><span class="pname" style="color:#0369A1">PLUS</span><span class="cred">80 créditos/semana</span><span class="price">$5<small> /mes</small></span><button class="btn btn-light btn-sm" type="button" data-toast="Los planes de pago todavía no están disponibles.">Próximamente</button></div>
-      <div class="plan rv" style="--d:.1s"><span class="soon">Próximamente</span><span class="ic lav"><svg class="i" aria-hidden="true"><use href="#i-gauge"/></svg></span><span class="pname" style="color:#5B4BD6">PREMIUM</span><span class="cred">300 créditos/semana</span><span class="price">$15<small> /mes</small></span><button class="btn btn-light btn-sm" type="button" data-toast="Los planes de pago todavía no están disponibles.">Próximamente</button></div>
-      <div class="plan top rv" style="--d:.15s"><span class="soon">Próximamente</span><span class="ic pink"><svg class="i" aria-hidden="true"><use href="#i-spark"/></svg></span><span class="pname" style="color:#A3215F">FLUX+</span><span class="cred">1000 créditos/semana</span><span class="price">$22<small> /mes</small></span><button class="btn btn-primary btn-sm" type="button" data-toast="Los planes de pago todavía no están disponibles.">Próximamente</button></div>
+      <div class="plan rv" style="--d:.05s"><span class="ic sky"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg></span><span class="pname" style="color:#0369A1">PLUS</span><span class="cred">80 créditos/semana</span><span class="price">$5.99<small> USD/mes</small></span><span class="ptrial">3 días gratis</span><span class="pnote">Después $5.99 USD/mes</span><div class="plan-btns"><button class="btn btn-primary btn-sm" type="button" data-buy="PLUS" data-trial>Probar 3 días gratis</button><button class="btn btn-light btn-sm" type="button" data-buy="PLUS">Comprar ahora</button></div></div>
+      <div class="plan rv" style="--d:.1s"><span class="ic lav"><svg class="i" aria-hidden="true"><use href="#i-gauge"/></svg></span><span class="pname" style="color:#5B4BD6">PREMIUM</span><span class="cred">300 créditos/semana</span><span class="price">$12.99<small> USD/mes</small></span><span class="pnote">Sin período de prueba</span><div class="plan-btns"><button class="btn btn-light btn-sm" type="button" data-buy="PREMIUM">Comprar</button></div></div>
+      <div class="plan top rv" style="--d:.15s"><span class="ic pink"><svg class="i" aria-hidden="true"><use href="#i-spark"/></svg></span><span class="pname" style="color:#A3215F">FLUX+</span><span class="cred">1000 créditos/semana</span><span class="price">$19.99<small> USD/mes</small></span><span class="pnote">Sin período de prueba</span><div class="plan-btns"><button class="btn btn-primary btn-sm" type="button" data-buy="FLUX_PLUS">Comprar</button></div></div>
     </div>
   </div>
 </section>
@@ -563,12 +556,12 @@
       <div class="help"><span class="ic lav"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg></span><div><b>¿Necesitas ayuda?</b><small>El canal de soporte se publicará muy pronto.</small></div></div>
     </div>
     <div class="faq-list rv" style="--d:.06s">
-      <details><summary>¿FLUX es gratis?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Puedes descargar e instalar FLUX gratis. El plan Free incluye 3 créditos al día; los planes de pago estarán disponibles más adelante.</p></details>
-      <details><summary>¿Puedo descargar desde esta web?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Todavía no. El descargador de esta página es una demostración de la interfaz. Por ahora, las descargas se hacen desde FLUX para Windows.</p></details>
+      <details><summary>¿FLUX es gratis?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Puedes descargar e instalar FLUX gratis. El plan Free incluye 3 créditos al día. PLUS ($5.99), PREMIUM ($12.99) y FLUX+ ($19.99) son mensuales, en USD; PLUS incluye 3 días gratis.</p></details>
+      <details><summary>¿Puedo descargar desde esta web?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>No. Esta web solo muestra la vista previa pública de un enlace (título y miniatura). Las descargas se hacen en la aplicación FLUX para Windows.</p></details>
       <details><summary>¿Mis archivos se suben a algún servidor?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>La conversión, la transcripción, la separación de audio y la limpieza de metadatos se ejecutan en tu equipo. Para descargar desde una URL, FLUX se conecta al sitio de origen.</p></details>
       <details><summary>¿Qué necesito para usarlo?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Un PC con Windows 10 u 11 de 64 bits. FLUX incluye los motores que necesita, así que no tienes que instalar nada más.</p></details>
       <details><summary>Windows dice que la app no es reconocida<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Es el aviso habitual de SmartScreen con aplicaciones nuevas. Pulsa «Más información» y después «Ejecutar de todas formas».</p></details>
-      <details id="contacto"><summary>¿Cómo contacto con soporte?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Estamos preparando el canal de soporte oficial. Lo publicaremos en esta página en cuanto esté disponible.</p></details>
+      <details id="contacto"><summary>¿Cómo contacto con soporte?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Consulta la página de <a href="contacto.html">Contacto y soporte</a>.</p></details>
     </div>
   </div>
 </section>
@@ -628,7 +621,7 @@
       <div><a class="logo" href="#main" aria-label="FLUX, volver arriba"><svg aria-hidden="true"><use href="#logo"/></svg>FLUX</a><p>Descarga, convierte, recorta, transcribe y protege tus archivos desde un solo lugar.</p></div>
       <nav aria-label="Producto"><h4>Producto</h4><a href="#funciones">Funciones</a><a href="#planes">Planes</a><a data-download href="https://github.com/cristiancordova1207/flux-releases/releases/latest/download/FLUX-Setup.exe">Descargar</a></nav>
       <nav aria-label="Soporte"><h4>Soporte</h4><a href="#preguntas">Preguntas frecuentes</a><a href="#contacto">Contacto</a></nav>
-      <nav aria-label="Legal"><h4>Legal</h4><a href="privacidad.html">Privacidad</a><a href="terminos.html">Términos</a></nav>
+      <nav aria-label="Legal"><h4>Legal</h4><a href="terminos.html">Términos y condiciones</a><a href="privacidad.html">Aviso de privacidad</a><a href="cookies.html">Política de cookies</a><a href="cancelacion.html">Cancelación y suscripciones</a><a href="licencias.html">Licencias de terceros</a><a href="contacto.html">Contacto y soporte</a></nav>
     </div>
     <div class="foot-bottom"><span>© 2026 FLUX</span><span>Usa FLUX solo con contenido que tengas derecho a descargar.</span></div>
   </div>
@@ -636,6 +629,17 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg><span></span></div>
 
+<dialog class="fx-dialog" id="fxDialog" aria-labelledby="fxTitle">
+  <form method="dialog" class="fx-close-form"><button class="fx-x" value="close" aria-label="Cerrar">×</button></form>
+  <div class="fx-body">
+    <span class="fx-ic"><svg aria-hidden="true"><use href="#logo"/></svg></span>
+    <h3 id="fxTitle"></h3>
+    <p id="fxText"></p>
+    <div class="fx-extra" id="fxExtra"></div>
+    <div class="fx-actions" id="fxActions"></div>
+  </div>
+</dialog>
 <script src="main.js"></script>
+
 </body>
 </html>

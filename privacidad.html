@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Política de privacidad — FLUX</title>
+<title>Aviso de privacidad — FLUX</title>
+<meta name="description" content="Qué datos trata FLUX, para qué y cómo ejercer tus derechos. Solo describimos datos que FLUX realmente recoge.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,12 +12,44 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<main class="sec">
-  <div class="wrap" style="max-width:760px">
+<main class="sec legal">
+  <div class="wrap">
     <a class="logo" href="./"><img src="favicon.svg" width="36" height="36" alt="">FLUX</a>
-    <h1 style="font-size:clamp(34px,5vw,52px);margin-top:48px">Política de privacidad</h1>
-    <p class="lede" style="margin-top:18px">Este documento está en preparación. Aquí explicaremos qué datos trata FLUX, para qué y cómo puedes ejercer tus derechos.</p>
-    <p style="margin-top:32px"><a class="btn btn-light" href="./">Volver a FLUX</a></p>
+    <h1>Aviso de privacidad</h1>
+    <p class="updated">Última actualización: 3 de octubre de 2026</p>
+    <p class="lede">Qué datos trata FLUX, para qué y cómo ejercer tus derechos. Solo describimos datos que FLUX realmente recoge.</p>
+<p class="draft">Borrador: los datos entre corchetes están pendientes de completar por el responsable de FLUX. Este texto no ha sido revisado por un abogado.</p>
+    <h2>1. Responsable</h2>
+    <p><mark class="ph">[DATOS DEL RESPONSABLE]</mark>, con domicilio en <mark class="ph">[DOMICILIO]</mark>. Contacto para privacidad: <mark class="ph">[CORREO DE PRIVACIDAD]</mark>.</p>
+    <h2>2. Sitio web</h2>
+    <ul>
+      <li>El sitio no usa cookies, ni analítica, ni publicidad, ni guarda nada en tu navegador.</li>
+      <li><b>Vista previa de enlaces</b>: si pegas un enlace, se envía a nuestro servidor (Cloudflare) y desde ahí a la plataforma del video (por ejemplo YouTube o Vimeo) para obtener su título y miniatura públicos. No guardamos el enlace asociado a ti; la respuesta se guarda en caché hasta 1 hora.</li>
+      <li><b>Proveedores</b>: el sitio está alojado en Cloudflare, que procesa datos técnicos como tu dirección IP para servir y proteger el sitio. Las fuentes tipográficas se cargan desde Google Fonts, por lo que Google recibe tu dirección IP. El instalador se descarga desde GitHub.</li>
+    </ul>
+    <h2>3. Aplicación FLUX</h2>
+    <p><b>Tus archivos se procesan en tu computadora</b> y no se suben a FLUX. Cuando descargas un enlace, la aplicación se conecta directamente con la plataforma del video.</p>
+    <p>Si creas una cuenta, FLUX trata (mediante Supabase, su proveedor de base de datos y autenticación):</p>
+    <ul>
+      <li>Correo electrónico y contraseña (la contraseña se guarda cifrada por Supabase; FLUX no la conoce).</li>
+      <li>Nombre visible e imagen de perfil, si los indicas.</li>
+      <li>Plan, saldo de créditos y movimientos de créditos (fecha, cantidad y tipo de operación), para aplicar los límites de cada plan.</li>
+      <li>Un identificador aleatorio de instalación, un resumen cifrado (hash SHA-256) del identificador de Windows del equipo y la versión de la aplicación, para evitar el abuso del beneficio gratuito. No se recoge MAC, número de serie ni otros datos de hardware.</li>
+      <li>Si contratas un plan: identificadores de cliente y suscripción de Stripe, estado de la suscripción, fechas del período y si ya usaste la prueba gratuita. Los datos de pago los trata Stripe; FLUX no recibe el número completo de tu tarjeta.</li>
+    </ul>
+    <p>La sesión de la aplicación se guarda en tu equipo, dentro de tu perfil de usuario de Windows.</p>
+    <h2>4. Para qué</h2>
+    <p>Para crear y mantener tu cuenta, aplicar créditos y planes, cobrar las suscripciones, prevenir abusos y dar soporte. No vendemos tus datos ni los usamos para publicidad.</p>
+    <h2>5. Encargados y transferencias</h2>
+    <p>Supabase (base de datos y autenticación), Stripe (pagos), Cloudflare (sitio web) y GitHub (descarga del instalador). Estos proveedores pueden tratar datos fuera de tu país. <mark class="ph">[UBICACIÓN DE LOS SERVIDORES Y BASE LEGAL DE LAS TRANSFERENCIAS]</mark>.</p>
+    <h2>6. Conservación</h2>
+    <p><mark class="ph">[PLAZOS DE CONSERVACIÓN]</mark>. Los datos de facturación pueden conservarse el tiempo que exija la ley fiscal.</p>
+    <h2>7. Tus derechos</h2>
+    <p>Puedes solicitar acceso, rectificación, cancelación u oposición (derechos ARCO), o la eliminación de tu cuenta, escribiendo a <mark class="ph">[CORREO DE PRIVACIDAD]</mark>. <mark class="ph">[PROCEDIMIENTO Y PLAZO DE RESPUESTA]</mark>.</p>
+    <h2>8. Cambios</h2>
+    <p>Si este aviso cambia, publicaremos la nueva versión en esta página con su fecha de actualización.</p>
+    <nav class="legal-nav" aria-label="Documentos legales"><a href="terminos.html">Términos y condiciones</a><span aria-current="page">Aviso de privacidad</span><a href="cookies.html">Política de cookies</a><a href="cancelacion.html">Cancelación y suscripciones</a><a href="licencias.html">Licencias de terceros</a><a href="contacto.html">Contacto y soporte</a></nav>
+    <p><a class="btn btn-light" href="./">Volver a FLUX</a></p>
   </div>
 </main>
 </body>

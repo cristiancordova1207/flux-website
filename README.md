@@ -17,4 +17,4 @@ Cloudflare Pages: framework **None**, build command vacío, output directory `/`
   Para una versión nueva: publica la Release en `flux-releases` y actualiza **solo** `release.json`.
 - Sin JavaScript, los botones `data-download` apuntan a `…/flux-releases/releases/latest/download/FLUX-Setup.exe`.
 
-El descargador de la web es solo una demostración visual: no hace peticiones ni descarga nada.
+La web nunca descarga videos: solo muestra la vista previa pública de un enlace. La descarga y el pago se hacen en la app.
