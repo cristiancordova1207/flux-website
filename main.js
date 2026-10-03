@@ -233,28 +233,43 @@ function showAlreadyHaveFlux(v) {
 dBtn.addEventListener("click", () => video && showDownloadWithFlux(video));
 
 // Planes: el pago se completa en FLUX Desktop con la cuenta del usuario (la web no crea pagos ni conoce al usuario).
-const PLAN_INFO = {
-  PLUS: { name: "PLUS", price: "$5.99 USD/mes" },
-  PREMIUM: { name: "PREMIUM", price: "$12.99 USD/mes" },
-  FLUX_PLUS: { name: "FLUX+", price: "$19.99 USD/mes" },
-};
-$$("[data-buy]").forEach(b => b.addEventListener("click", () => {
-  const p = PLAN_INFO[b.dataset.buy], trial = b.hasAttribute("data-trial");
+// Los datos del plan se leen de su tarjeta: el modal no puede mostrar otro precio que el de la tarjeta.
+function planFromCard(code) {
+  const c = document.querySelector(`[data-plan="${code}"]`);
+  if (!c) return null;
+  const txt = sel => (c.querySelector(sel)?.textContent || "").replace(/\s+/g, " ").trim();
+  return { code, name: txt(".pname"), price: txt(".price"), credits: txt(".cred"), trial: code === "PLUS" };
+}
+function planMedia(p) {
+  const box = el("div", { class: "fx-plan" });
+  const head = el("div", { class: "fx-plan-head" });
+  head.append(el("small", {}, "Has seleccionado"), el("b", {}, `FLUX ${p.name}`.replace("FLUX FLUX+", "FLUX+")));
+  box.append(head, el("p", { class: "fx-plan-price" }, p.price), el("p", { class: "fx-plan-cred" }, p.credits));
+  box.append(el("span", { class: p.trial ? "fx-plan-trial" : "fx-plan-notrial" }, p.trial ? "Prueba gratis 3 días" : "Sin prueba gratuita"));
+  return box;
+}
+function showGetFlux(p) {
   openDialog({
-    title: "Obtén FLUX",
-    text: "Para utilizar las funciones premium necesitas FLUX Desktop.",
-    actions: [downloadAction(), { label: "Continuar al pago", onClick: () => openDialog({
-      title: "Continuar al pago",
-      text: "El pago se completa desde FLUX Desktop.",
-      steps: ["Abre FLUX e inicia sesión con tu cuenta.", "Ve a Planes.", `Elige ${p.name} y pulsa ${trial ? "«Probar 3 días gratis»" : "el botón de compra"}.`, "Completa el pago en la página segura de Stripe que se abre en tu navegador."],
-      notes: [
-        trial ? `${p.name}: 3 días gratis. Si no cancelas antes de que termine la prueba, se cobran ${p.price} y la suscripción se renueva cada mes.` : `${p.name}: ${p.price}, con renovación mensual. Puedes cancelar cuando quieras.`,
-        "La sección Planes llega con la próxima versión de FLUX (1.0.1); la versión 1.0.0 todavía no la incluye.",
-      ],
-      actions: [downloadAction(), cancelAction],
-    }) }, cancelAction],
+    title: "Descarga FLUX para continuar",
+    text: "Para comprar un plan de FLUX necesitas utilizar la aplicación de escritorio. Descarga FLUX para acceder a tus créditos, herramientas y suscripción.",
+    media: planMedia(p),
+    actions: [downloadAction(), { label: "Ya tengo FLUX", onClick: () => showOpenFlux(p) }, cancelAction],
   });
-}));
+}
+function showOpenFlux(p) {
+  openDialog({
+    title: "Abre FLUX para continuar",
+    text: "Puedes realizar tu compra desde la sección Planes de la aplicación.",
+    media: planMedia(p),
+    steps: ["Abre FLUX en tu computadora e inicia sesión.", "Ve a la sección Planes.", `Elige ${p.name}${p.trial ? " (puedes empezar con la prueba gratis de 3 días)" : ""}.`, "Completa el pago en la página segura de Stripe que se abre en tu navegador."],
+    notes: [
+      p.trial ? "Prueba de 3 días: si no cancelas antes de que termine, se cobra el precio mensual y la suscripción se renueva cada mes." : "La suscripción se renueva cada mes. Puedes cancelarla cuando quieras desde FLUX (Planes → Gestionar suscripción).",
+      "La sección Planes llega con la próxima versión de FLUX (1.0.1); la versión 1.0.0 todavía no la incluye.",
+    ],
+    actions: [{ label: "Volver", onClick: () => showGetFlux(p) }, { label: "Cerrar", primary: true, onClick: () => dlg.close() }],
+  });
+}
+$$("[data-buy]").forEach(b => b.addEventListener("click", () => { const p = planFromCard(b.dataset.buy); if (p) showGetFlux(p); }));
 
 // Privacy Lab: limpiar metadatos (ejemplo)
 const insp = $("#insp");
