@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "file": "FLUX-Setup.exe",
+  "url": "https://github.com/cristiancordova1207/flux-releases/releases/download/v1.0.0/FLUX-Setup.exe",
+  "size": 159577276,
+  "sha256": "24cae0fed612ddc3f793035c8d8538bc5c6d5ce6939dc419cc7a54390ce51659",
+  "published": "2026-10-03",
+  "requirements": "Windows 10/11 · 64 bits"
+}

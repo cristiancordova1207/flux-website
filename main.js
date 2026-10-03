@@ -1,11 +1,25 @@
-// Enlace del instalador: cámbialo aquí cuando publiques una versión pública.
-const DOWNLOAD_URL = "https://github.com/cristiancordova1207/flux/releases/latest/download/FLUX-Setup.exe";
-
+// Instalador: versión, enlace, tamaño y SHA-256 viven SOLO en release.json (una nueva versión = cambiar ese archivo).
+// Sin JavaScript, los botones ya apuntan en el HTML a la última Release pública (…/releases/latest/download/…).
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-$$("[data-download]").forEach(a => (a.href = DOWNLOAD_URL));
+const fmtSize = b => `${(b / 1024 ** 2).toFixed(1).replace(".", ",")} MB`;
+fetch("release.json", { cache: "no-cache" })
+  .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
+  .then(rel => {
+    if (!/^https:\/\/github\.com\/cristiancordova1207\/flux-releases\/releases\/download\//.test(rel.url)) return;
+    $$("[data-download]").forEach(a => { a.href = rel.url; a.setAttribute("download", rel.file); });
+    const fill = { version: `FLUX ${rel.version}`, size: fmtSize(rel.size), sha256: rel.sha256, requirements: rel.requirements };
+    $$("[data-release]").forEach(el => { if (fill[el.dataset.release]) el.textContent = fill[el.dataset.release]; });
+    $$("[data-copy-sha]").forEach(b => (b.hidden = false));
+  })
+  .catch(() => {}); // the static links keep working
+
+$$("[data-copy-sha]").forEach(b => b.addEventListener("click", async () => {
+  const sha = $("[data-release='sha256']").textContent.trim();
+  try { await navigator.clipboard.writeText(sha); toast("SHA-256 copiado."); } catch { toast("No se pudo copiar. Selecciona el texto y cópialo."); }
+}));
 
 // Formas de onda decorativas (deterministas por semilla)
 $$(".wave").forEach(w => {

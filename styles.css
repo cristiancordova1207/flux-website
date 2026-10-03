@@ -498,6 +498,20 @@ details p { color: var(--muted); padding-bottom: 20px; margin-top: -4px; font-si
 .cta-box { position: relative; overflow: hidden; isolation: isolate; border-radius: 38px; padding: 64px; display: grid; grid-template-columns: minmax(0,.95fr) minmax(0,1.05fr); gap: 48px; align-items: center; background: linear-gradient(120deg, #EAE5FF 0%, #E2F4FF 52%, #FFE8F3 100%); }
 .cta-box .lede { margin: 20px 0 32px; }
 .cta-art { position: relative; padding: 20px 30px 10px; }
+/* Descarga: datos reales del instalador (release.json) */
+.hero-ver:not(:empty)::before { content: " · "; }
+.dl-info { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 22px 0 0; max-width: 560px; }
+.dl-info > div { padding: 10px 14px; border-radius: 14px; background: rgba(255,255,255,.72); border: 1px solid rgba(255,255,255,.9); }
+.dl-info dt { font-size: 11.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.dl-info dd { margin: 2px 0 0; font-size: 14px; font-weight: 600; color: var(--ink); }
+.dl-info .sha { grid-column: 1 / -1; }
+.dl-info .sha dd { display: flex; align-items: center; gap: 10px; }
+.dl-info code { font: 500 12.5px/1.5 ui-monospace, "JetBrains Mono", Consolas, monospace; overflow-wrap: anywhere; color: var(--ink-2); }
+.sha-copy { flex: none; height: 30px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--line); background: #fff; font: 700 12.5px "Plus Jakarta Sans", system-ui, sans-serif; color: var(--ink-2); cursor: pointer; }
+.sha-copy:hover { color: var(--ink); }
+.cta-box .fine code { font: 500 12px ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
+.cta-box .fine a { color: #5B4BE0; font-weight: 700; }
+@media (max-width: 600px) { .dl-info { grid-template-columns: 1fr; } }
 .laptop .lid { background: #20243A; border-radius: 20px 20px 6px 6px; padding: 10px; box-shadow: var(--shadow-lg); }
 .laptop .lid .win { border-radius: 12px; box-shadow: none; border: 0; }
 .laptop .deck { height: 14px; margin: 0 -26px; border-radius: 3px 3px 14px 14px; background: linear-gradient(#D7DBEA, #B9BED2); position: relative; }
