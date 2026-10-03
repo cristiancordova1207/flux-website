@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLUX — Multimedia Suite para Windows</title>
+<meta name="description" content="FLUX reúne descargas, conversión, edición, transcripción y privacidad multimedia en una sola aplicación para Windows.">
+<meta name="theme-color" content="#080B12">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080B12; --surface: #10151F; --card: #161D29;
+    --blue: #38BDF8; --cyan: #67E8F9;
+    --text: #F1F5F9; --muted: #94A3B8; --border: #263244;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font: 16px/1.6 Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+  nav { position: sticky; top: 0; z-index: 10; background: rgba(8,11,18,.75); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: .08em; }
+  .links { display: flex; gap: 28px; color: var(--muted); font-size: 14px; }
+  .links a:hover { color: var(--text); }
+
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 10px; font-weight: 600; font-size: 15px; transition: transform .2s, box-shadow .2s, background .2s; }
+  .btn-primary { background: var(--blue); color: #04121C; box-shadow: 0 8px 30px rgba(56,189,248,.25); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(56,189,248,.4); }
+  .btn-ghost { border: 1px solid var(--border); color: var(--text); }
+  .btn-ghost:hover { background: var(--surface); }
+  .btn-sm { padding: 8px 16px; font-size: 14px; }
+
+  .hero { padding: 96px 0 72px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ""; position: absolute; inset: -40% 10% auto; height: 520px; background: radial-gradient(closest-side, rgba(56,189,248,.18), transparent); pointer-events: none; }
+  .badge { display: inline-block; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--cyan); font-size: 13px; font-weight: 500; margin-bottom: 24px; }
+  h1 { font-size: clamp(38px, 6vw, 68px); line-height: 1.05; font-weight: 800; letter-spacing: -.03em; }
+  h1 span { color: var(--blue); }
+  .lead { max-width: 620px; margin: 22px auto 36px; color: var(--muted); font-size: 18px; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .meta { margin-top: 18px; color: var(--muted); font-size: 13px; }
+
+  .window { margin: 64px auto 0; max-width: 960px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: 0 40px 120px rgba(0,0,0,.6); overflow: hidden; text-align: left; }
+  .bar { display: flex; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .bar i { width: 11px; height: 11px; border-radius: 50%; background: var(--border); }
+  .app { display: grid; grid-template-columns: 200px 1fr; min-height: 320px; }
+  .side { border-right: 1px solid var(--border); padding: 18px 14px; font-size: 13px; color: var(--muted); }
+  .side b { display: block; font-size: 10px; letter-spacing: .12em; margin: 14px 0 6px; color: #5b6b82; }
+  .side div { padding: 6px 10px; border-radius: 8px; }
+  .side .on { background: var(--card); color: var(--text); }
+  .main { padding: 28px; }
+  .main h3 { font-size: 20px; margin-bottom: 4px; }
+  .main p { color: var(--muted); font-size: 14px; margin-bottom: 20px; }
+  .drop { border: 1.5px dashed var(--border); border-radius: 12px; padding: 36px; text-align: center; color: var(--muted); font-size: 14px; }
+  .row { display: flex; gap: 10px; margin-top: 16px; }
+  .row .input { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: #5b6b82; font-size: 14px; }
+
+  section { padding: 88px 0; }
+  .eyebrow { color: var(--blue); font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+  h2 { font-size: clamp(28px, 4vw, 40px); letter-spacing: -.02em; margin: 10px 0 14px; }
+  .sub { color: var(--muted); max-width: 560px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 44px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: border-color .2s, transform .2s; }
+  .card:hover { border-color: rgba(56,189,248,.5); transform: translateY(-3px); }
+  .card .ic { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: rgba(56,189,248,.12); color: var(--blue); margin-bottom: 16px; }
+  .card h4 { font-size: 17px; margin-bottom: 6px; }
+  .card p { color: var(--muted); font-size: 14px; }
+  .card ul { list-style: none; margin-top: 10px; color: var(--muted); font-size: 14px; }
+  .card li::before { content: "› "; color: var(--blue); }
+
+  .steps { counter-reset: s; }
+  .steps .card h4::before { counter-increment: s; content: counter(s); display: inline-grid; place-items: center; width: 28px; height: 28px; margin-right: 10px; border-radius: 50%; background: var(--blue); color: #04121C; font-size: 14px; }
+
+  .download { text-align: center; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .download .sub { margin: 0 auto 32px; }
+  .req { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; margin-top: 28px; color: var(--muted); font-size: 14px; }
+
+  details { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 22px; margin-top: 12px; }
+  summary { cursor: pointer; font-weight: 600; }
+  details p { color: var(--muted); margin-top: 10px; font-size: 15px; }
+  .faq { max-width: 760px; margin-top: 36px; }
+
+  footer { padding: 36px 0; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  @media (max-width: 720px) {
+    .links { display: none; }
+    .app { grid-template-columns: 1fr; }
+    .side { display: none; }
+    .hero { padding-top: 64px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#"><img src="favicon.svg" width="28" height="28" alt="">FLUX</a>
+    <div class="links">
+      <a href="#funciones">Funciones</a>
+      <a href="#instalacion">Instalación</a>
+      <a href="#faq">Preguntas</a>
+    </div>
+    <a class="btn btn-primary btn-sm download-link" href="#descargar">Descargar</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="badge">FLUX Multimedia Suite · Windows</span>
+    <h1>Todo tu multimedia,<br><span>en una sola app.</span></h1>
+    <p class="lead">Descarga, convierte, recorta, transcribe y limpia metadatos sin saltar entre diez herramientas. Rápido, local y privado.</p>
+    <div class="cta">
+      <a class="btn btn-primary download-link" href="#descargar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 21h16"/></svg>
+        Descargar para Windows
+      </a>
+      <a class="btn btn-ghost" href="#funciones">Ver funciones</a>
+    </div>
+    <p class="meta">Windows 10 / 11 · 64 bits · Instalador gratuito</p>
+
+    <div class="window" aria-hidden="true">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div class="app">
+        <div class="side">
+          <b>PRINCIPAL</b><div>Inicio</div><div>Descargas</div><div>Biblioteca</div>
+          <b>MEDIA LAB</b><div>Convertidor</div><div class="on">Transcriptor</div>
+          <b>PRIVACY LAB</b><div>Limpiar metadatos</div>
+        </div>
+        <div class="main">
+          <h3>Convierte audio y video en texto</h3>
+          <p>Obtén una transcripción editable a partir de tus archivos multimedia.</p>
+          <div class="drop">Arrastra un archivo aquí<br>o <span style="color:var(--blue)">selecciona un archivo</span></div>
+          <div class="row"><div class="input">Pega una URL...</div><span class="btn btn-primary btn-sm">Analizar</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="funciones">
+  <div class="wrap">
+    <span class="eyebrow">Funciones</span>
+    <h2>Una suite completa, cero complicaciones</h2>
+    <p class="sub">Cuatro laboratorios pensados para el flujo real de trabajo con video y audio.</p>
+    <div class="grid">
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 21h16"/></svg></div>
+        <h4>Descargas</h4>
+        <p>Pega una URL compatible y FLUX hace el resto.</p>
+        <ul><li>Cola y descargas por lotes</li><li>Historial y biblioteca</li><li>Elige formato y calidad</li></ul>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/></svg></div>
+        <h4>Media Lab</h4>
+        <p>Edita sin abrir un editor pesado.</p>
+        <ul><li>Convertidor y compresor</li><li>Recortador y GIF Maker</li><li>Capturas y audio</li></ul>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h13"/></svg></div>
+        <h4>Transcriptor</h4>
+        <p>Audio y video a texto editable.</p>
+        <ul><li>Archivos locales o URLs</li><li>Exporta subtítulos</li><li>Separación de pistas</li></ul>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg></div>
+        <h4>Privacy Lab</h4>
+        <p>Controla lo que tus archivos revelan.</p>
+        <ul><li>Inspecciona metadatos</li><li>Limpia EXIF, GPS y C2PA</li><li>Información del archivo</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="instalacion" style="padding-top:0">
+  <div class="wrap">
+    <span class="eyebrow">Instalación</span>
+    <h2>Listo en menos de un minuto</h2>
+    <div class="grid steps">
+      <div class="card"><h4>Descarga</h4><p>Baja <strong>FLUX-Setup.exe</strong> desde esta página.</p></div>
+      <div class="card"><h4>Instala</h4><p>Ejecuta el instalador. Si Windows SmartScreen avisa, pulsa «Más información» → «Ejecutar de todas formas».</p></div>
+      <div class="card"><h4>Abre FLUX</h4><p>Inicia sesión y empieza. FLUX se actualiza solo cuando hay una versión nueva.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="descargar" class="download">
+  <div class="wrap">
+    <span class="eyebrow">Descarga</span>
+    <h2>Consigue FLUX para Windows</h2>
+    <p class="sub">Todo incluido: no necesitas instalar FFmpeg ni nada más.</p>
+    <a class="btn btn-primary download-link" id="dl" href="#">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 21h16"/></svg>
+      Descargar FLUX-Setup.exe
+    </a>
+    <div class="req"><span>Windows 10 / 11 (64 bits)</span><span>4 GB de RAM</span><span>500 MB libres</span><span>Conexión a internet</span></div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <span class="eyebrow">Preguntas</span>
+    <h2>Preguntas frecuentes</h2>
+    <div class="faq">
+      <details><summary>¿Es gratis?</summary><p>Puedes descargar e instalar FLUX gratis. Algunas funciones usan créditos de tu cuenta.</p></details>
+      <details><summary>¿Dónde se guardan mis archivos?</summary><p>En tu equipo, dentro de Documentos\FLUX. Tus archivos no se suben a ningún servidor para procesarlos.</p></details>
+      <details><summary>Windows dice que la app no es reconocida</summary><p>Es el aviso normal de SmartScreen con aplicaciones nuevas. Pulsa «Más información» y luego «Ejecutar de todas formas».</p></details>
+      <details><summary>¿Cómo actualizo?</summary><p>FLUX detecta las versiones nuevas al abrirse y se actualiza con un clic.</p></details>
+      <details><summary>¿Cómo lo desinstalo?</summary><p>Desde Configuración de Windows → Aplicaciones → FLUX → Desinstalar. Tus archivos de Documentos\FLUX se conservan.</p></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="y"></span> FLUX Multimedia Suite</span>
+    <span>Usa FLUX solo con contenido que tengas derecho a descargar.</span>
+  </div>
+</footer>
+
+<script>
+  // Cambia esta URL cuando publiques el instalador.
+  const DOWNLOAD_URL = "https://github.com/cristiancordova1207/flux/releases/latest/download/FLUX-Setup.exe";
+  document.getElementById("dl").href = DOWNLOAD_URL;
+  document.getElementById("y").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
