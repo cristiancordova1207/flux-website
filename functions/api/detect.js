@@ -22,6 +22,14 @@ const PLATFORMS = [
 const PRIVATE = /^(localhost|0\.0\.0\.0|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[)/i;
 const LIMIT = 20, WINDOW_MS = 60_000; // per IP and isolate; a Cloudflare rate-limiting rule is the real limit
 const hits = new Map();
+const MSG = {
+  empty: 'Introduce una URL de vídeo.',
+  invalid: 'Introduce una URL válida.',
+  unsupported: 'Esta plataforma no es compatible.',
+  notFound: 'No se encontró un vídeo público con este enlace.',
+  noMeta: 'No fue posible obtener información pública de este vídeo.',
+  busy: 'Demasiadas solicitudes. Espera un minuto e inténtalo de nuevo.',
+};
 
 const json = (status, body, extra = {}) => new Response(JSON.stringify(body), {
   status, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...extra },
@@ -32,36 +40,38 @@ const httpsUrl = (s) => { try { const u = new URL(s); return u.protocol === 'htt
 export async function onRequestGet({ request }) {
   const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
   const now = Date.now(), h = (hits.get(ip) || []).filter((t) => now - t < WINDOW_MS);
-  if (h.length >= LIMIT) return json(429, { error: 'Demasiadas solicitudes. Espera un minuto e inténtalo de nuevo.' }, { 'Retry-After': '60' });
+  if (h.length >= LIMIT) return json(429, { error: MSG.busy }, { 'Retry-After': '60' });
   h.push(now); hits.set(ip, h);
   if (hits.size > 5000) hits.clear();
 
-  const raw = new URL(request.url).searchParams.get('url') || '';
-  if (raw.length > 2048) return json(400, { error: 'El enlace es demasiado largo.' });
+  const raw = (new URL(request.url).searchParams.get('url') || '').trim();
+  if (!raw) return json(400, { error: MSG.empty });
+  if (raw.length > 2048) return json(400, { error: MSG.invalid });
   let target;
-  try { target = new URL(raw.trim()); } catch { return json(400, { error: 'El enlace no es válido.' }); }
-  if (!['http:', 'https:'].includes(target.protocol) || target.username || target.password || PRIVATE.test(target.hostname)) return json(400, { error: 'El enlace no es válido.' });
+  try { target = new URL(raw); } catch { return json(400, { error: MSG.invalid }); }
+  if (!['http:', 'https:'].includes(target.protocol) || target.username || target.password || PRIVATE.test(target.hostname) || !target.hostname.includes('.')) return json(400, { error: MSG.invalid });
   const host = target.hostname.toLowerCase();
   const p = PLATFORMS.find((x) => x.hosts.some((d) => host === d || host.endsWith(`.${d}`)));
-  if (!p) return json(422, { error: 'Esta web solo muestra vista previa de plataformas conocidas. FLUX puede intentarlo con este enlace desde la aplicación.', platform: null });
+  if (!p) return json(422, { error: MSG.unsupported, platform: null });
   const base = { platform: { id: p.id, name: p.name }, url: target.href };
-  if (!p.oembed) return json(200, { ...base, preview: false, message: `${p.name} no ofrece una vista previa pública. Puedes analizar el enlace en FLUX.` });
+  if (!p.oembed) return json(200, { ...base, preview: false, message: 'Sin vista previa pública' });
 
   const cache = caches.default;
-  const key = new Request(`https://flux-detect.cache/${p.id}?u=${encodeURIComponent(target.href)}`);
+  const key = new Request(`https://flux-detect.cache/v2/${p.id}?u=${encodeURIComponent(target.href)}`);
   const hit = await cache.match(key);
   if (hit) return hit;
 
   let res;
   try { res = await fetch(p.oembed(encodeURIComponent(target.href)), { headers: { Accept: 'application/json', 'User-Agent': 'FLUX-website-preview/1.0' }, signal: AbortSignal.timeout(6000), cf: { cacheTtl: 3600 } }); }
-  catch { return json(502, { error: `No se pudo contactar con ${p.name}. Inténtalo de nuevo más tarde.` }); }
-  if ([400, 401, 403, 404].includes(res.status)) return json(404, { ...base, error: 'No se encontró un video público en este enlace (puede ser privado, estar eliminado o no estar disponible).' });
-  if (!res.ok) return json(502, { error: `${p.name} no respondió correctamente. Inténtalo de nuevo más tarde.` });
+  catch (e) { console.error(`[detect] ${p.id}: ${e.name}`); return json(502, { ...base, error: MSG.noMeta }); }
+  // Technical details stay in the Pages Function log; the visitor gets a plain message.
+  if ([400, 404].includes(res.status)) return json(404, { ...base, error: MSG.notFound });
+  if (!res.ok) { console.error(`[detect] ${p.id}: oEmbed ${res.status}`); return json(502, { ...base, error: MSG.noMeta }); }
   let o;
-  try { o = await res.json(); } catch { return json(502, { error: `${p.name} devolvió una respuesta no válida.` }); }
+  try { o = await res.json(); } catch { console.error(`[detect] ${p.id}: JSON no válido`); return json(502, { ...base, error: MSG.noMeta }); }
 
   const out = json(200, {
-    ...base, preview: true,
+    ...base, preview: true, video: o.type === 'video',
     title: clean(o.title, 300), author: clean(o.author_name, 120),
     thumbnail: httpsUrl(o.thumbnail_url), provider: clean(o.provider_name, 60) || p.name,
   }, { 'Cache-Control': 'public, max-age=3600' });

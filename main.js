@@ -73,7 +73,7 @@ const io = new IntersectionObserver(entries => entries.forEach(e => {
 }), { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
 $$(".rv").forEach(el => io.observe(el));
 
-// Diálogo compartido (descarga y planes). Todo el contenido se escribe con textContent.
+// Diálogo compartido (descarga y planes). Todo el contenido externo se escribe con textContent / atributos.
 const dlg = $("#fxDialog");
 const installerUrl = () => ($("[data-download]") || {}).href || "https://github.com/cristiancordova1207/flux-releases/releases/latest/download/FLUX-Setup.exe";
 function el(tag, attrs = {}, text = "") {
@@ -82,15 +82,18 @@ function el(tag, attrs = {}, text = "") {
   if (text) n.textContent = text;
   return n;
 }
-function openDialog({ title, text, steps = [], note = "", actions = [] }) {
+function openDialog({ title, text, media = null, link = "", steps = [], notes = [], actions = [] }) {
   $("#fxTitle").textContent = title;
   $("#fxText").textContent = text;
-  const extra = $("#fxExtra"), acts = $("#fxActions");
+  const extra = $("#fxExtra");
   extra.replaceChildren();
+  if (media) extra.append(media);
+  if (link) extra.append(el("p", { class: "fx-link" }, link));
   if (steps.length) { const ol = el("ol", { class: "fx-steps" }); steps.forEach(s => ol.append(el("li", {}, s))); extra.append(ol); }
-  if (note) extra.append(el("p", { class: "fx-note" }, note));
-  acts.replaceChildren(...actions.map(a => {
-    const b = a.href ? el("a", { class: `btn ${a.primary ? "btn-primary" : "btn-light"}`, href: a.href, rel: "noopener" }, a.label) : el("button", { class: `btn ${a.primary ? "btn-primary" : "btn-light"}`, type: "button" }, a.label);
+  notes.forEach(n => extra.append(el("p", { class: "fx-note" }, n)));
+  $("#fxActions").replaceChildren(...actions.map(a => {
+    const cls = `btn ${a.primary ? "btn-primary" : "btn-light"}`;
+    const b = a.href ? el("a", { class: cls, href: a.href, rel: "noopener" }, a.label) : el("button", { class: cls, type: "button" }, a.label);
     if (a.onClick) b.addEventListener("click", a.onClick);
     return b;
   }));
@@ -98,97 +101,158 @@ function openDialog({ title, text, steps = [], note = "", actions = [] }) {
 }
 dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); }); // clic fuera = cerrar
 const downloadAction = () => ({ label: "Descargar FLUX", primary: true, href: installerUrl() });
+const cancelAction = { label: "Cancelar", onClick: () => dlg.close() };
 
-function showDownloadWithFlux(videoUrl) {
-  openDialog({
-    title: "Descarga con FLUX",
-    text: "La descarga del video se hace en la aplicación de escritorio FLUX para Windows. Esta web no descarga videos.",
-    actions: [downloadAction(), { label: "Ya tengo FLUX", onClick: () => showAlreadyHaveFlux(videoUrl) }],
-  });
-}
-function showAlreadyHaveFlux(videoUrl) {
-  openDialog({
-    title: "Continúa en FLUX",
-    text: "Sigue estos pasos en la aplicación:",
-    steps: ["Abre FLUX en tu computadora.", "Ve a la sección Descargas.", "Pega el enlace y pulsa Analizar.", "Elige el formato y la calidad, y descarga."],
-    note: "Descarga solo contenido propio o que tengas permiso de usar, respetando las condiciones de cada plataforma.",
-    actions: videoUrl ? [{ label: "Copiar enlace", primary: true, onClick: async () => {
-      try { await navigator.clipboard.writeText(videoUrl); toast("Enlace copiado. Pégalo en FLUX → Descargas."); } catch { toast("No se pudo copiar. Selecciona el enlace y cópialo."); }
-    } }] : [],
-  });
+/** Miniatura real (https, de la plataforma) con estado de carga; si no hay o falla: "Miniatura no disponible". */
+function fillThumb(box, src) {
+  box.classList.remove("wait");
+  if (!src) return box.replaceChildren(el("span", { class: "thumb-na" }, "Miniatura no disponible"));
+  const img = el("img", { src, alt: "", referrerpolicy: "no-referrer", decoding: "async" });
+  box.classList.add("wait");
+  img.addEventListener("load", () => box.classList.remove("wait"));
+  img.addEventListener("error", () => fillThumb(box, null));
+  box.replaceChildren(img);
 }
 
-// Smart Downloader: vista previa pública real vía /api/detect. La animación de etapas es solo de la interfaz.
+// Smart Downloader: datos públicos reales vía /api/detect (oEmbed oficial). La web nunca descarga el vídeo.
 const result = $("#result");
-const STAGES = ["Analizando enlace…", "Detectando video…", "Obteniendo información…", "Preparando FLUX…"];
-const MIN_MS = reduced ? 0 : 6000;
-const urlIn = $("#url"), dBtn = $("#dDownload");
-let current = null, busy = false;
-const DEF_THUMB = $("#dThumb").innerHTML;
+const STAGES = ["Analizando vídeo...", "Obteniendo información...", "Preparando descarga...", "Listo..."];
+const ANIM_MS = reduced ? 0 : 6000, STEP_MS = ANIM_MS / STAGES.length;
+const urlIn = $("#url"), dBtn = $("#dDownload"), urlErr = $("#urlErr"), stageEl = $("#dStage");
+const DEF_THUMB = $("#dThumb").innerHTML; // ilustración estática del propio HTML (estado inicial)
+let video = null, run = 0;
+
 function setCard({ platform, state, title, meta, thumb }) {
   $("#dPlatform").textContent = platform;
   $("#dState").textContent = state;
   $("#dTitle").textContent = title;
   $("#dMeta").textContent = meta;
-  const box = $("#dThumb");
-  if (thumb) { const img = el("img", { src: thumb, alt: "", loading: "lazy", referrerpolicy: "no-referrer" }); img.addEventListener("error", () => img.remove()); box.replaceChildren(img); }
-  else box.innerHTML = DEF_THUMB; // ilustración estática del propio HTML
+  if (thumb === undefined) $("#dThumb").innerHTML = DEF_THUMB;
+  else fillThumb($("#dThumb"), thumb);
 }
-
+function fieldError(msg) {
+  urlErr.textContent = msg; urlErr.hidden = !msg;
+  urlIn.setAttribute("aria-invalid", msg ? "true" : "false");
+  if (msg) urlIn.focus();
+}
+/** Same rules as the server: http(s) only, no credentials, no local/private hosts. */
+function checkUrl(raw) {
+  if (!raw) return "Introduce una URL de vídeo.";
+  let u;
+  try { u = new URL(raw); } catch { return "Introduce una URL válida."; }
+  if (!/^https?:$/.test(u.protocol) || u.username || u.password || !u.hostname.includes(".") ||
+      /^(localhost|0\.0\.0\.0|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[)/i.test(u.hostname)) return "Introduce una URL válida.";
+  return "";
+}
+const wait = ms => new Promise(r => setTimeout(r, ms));
 
 $("#urlForm").addEventListener("submit", async e => {
   e.preventDefault();
-  if (busy) return;
   const raw = urlIn.value.trim();
-  let parsed;
-  try { parsed = new URL(raw); } catch {}
-  if (!parsed || !/^https?:$/.test(parsed.protocol)) { toast("Pega un enlace válido que empiece por https://"); urlIn.focus(); return; }
-  busy = true; current = null; dBtn.disabled = true;
+  const bad = checkUrl(raw);
+  fieldError(bad);
+  if (bad) { // nada del vídeo anterior queda visible
+    run++; video = null; dBtn.hidden = true; result.classList.remove("loading"); result.removeAttribute("aria-busy");
+    return setCard({ platform: "Vista previa", state: "Esperando enlace", title: "Pega un enlace para ver su vista previa", meta: "", thumb: undefined });
+  }
+  const my = ++run; // a newer analysis always wins; old answers are dropped
+  video = null; dBtn.hidden = true;
+  setCard({ platform: "Vista previa", state: "Analizando", title: "Analizando el enlace", meta: "", thumb: undefined }); // nada del vídeo anterior
+  result.style.setProperty("--scan-ms", `${ANIM_MS}ms`);
+  result.classList.remove("loading"); void result.offsetWidth; // reinicia la barra
   result.classList.add("loading"); result.setAttribute("aria-busy", "true");
-  let i = 0; $("#dStage").textContent = STAGES[0];
-  const tick = setInterval(() => { i = Math.min(i + 1, STAGES.length - 1); $("#dStage").textContent = STAGES[i]; }, MIN_MS / STAGES.length || 1);
+  stageEl.textContent = STAGES[0];
   const started = Date.now();
-  let data, status = 0;
+  let stage = 0, done = false;
+  const tick = setInterval(() => { stage = Math.min(stage + 1, done ? 3 : 2); stageEl.textContent = STAGES[stage]; }, STEP_MS || 1);
+
+  let data = {}, status = 0;
   try {
     const r = await fetch(`/api/detect?url=${encodeURIComponent(raw)}`, { headers: { Accept: "application/json" } });
-    status = r.status; data = await r.json();
-  } catch { data = { error: "No se pudo conectar. Revisa tu conexión e inténtalo de nuevo." }; }
-  await new Promise(r => setTimeout(r, Math.max(0, MIN_MS - (Date.now() - started))));
+    status = r.status; data = await r.json().catch(() => ({}));
+  } catch { status = 0; }
+  if (my !== run) return clearInterval(tick);
+  done = true;
+  const ok = status === 200;
+  // Éxito: animación completa (~6 s). Error: se corta en cuanto hay respuesta (mín. 1,2 s), sin decir "Listo".
+  await wait(Math.max(0, (ok ? ANIM_MS : Math.min(ANIM_MS, 1200)) - (Date.now() - started)));
+  if (ok) { stageEl.textContent = STAGES[3]; await wait(reduced ? 0 : 350); }
   clearInterval(tick);
+  if (my !== run) return;
   result.classList.remove("loading"); result.removeAttribute("aria-busy");
-  busy = false;
-  const pname = data?.platform?.name || "Enlace";
-  if (status === 200 && data.preview) {
-    current = data.url;
-    setCard({ platform: pname, state: "Video detectado", title: data.title || "Video sin título público", meta: data.author ? `${data.author} · ${data.provider}` : data.provider, thumb: data.thumbnail });
-  } else if (status === 200) {
-    current = data.url;
-    setCard({ platform: pname, state: "Sin vista previa", title: `Enlace de ${pname}`, meta: data.message || "Esta plataforma no ofrece vista previa pública.", thumb: null });
+
+  const pname = data.platform?.name || "Enlace";
+  if (ok && data.preview) {
+    video = { url: data.url, title: data.title || null, platform: pname, thumbnail: data.thumbnail || null };
+    setCard({ platform: pname, state: data.video ? "Vídeo detectado" : "Publicación detectada", title: data.title || "Título no disponible", meta: [data.author, pname].filter(Boolean).join(" · "), thumb: data.thumbnail || null });
+  } else if (ok) {
+    video = { url: data.url, title: null, platform: pname, thumbnail: null };
+    setCard({ platform: pname, state: "Sin vista previa pública", title: "Título no disponible", meta: `${pname} no ofrece información pública de este vídeo. Puedes descargarlo con FLUX Desktop.`, thumb: null });
+  } else if (status === 400 || status === 429) {
+    setCard({ platform: "Vista previa", state: "Esperando enlace", title: "Pega un enlace para ver su vista previa", meta: "", thumb: undefined });
+    fieldError(data.error || "Introduce una URL válida.");
   } else if (status === 422) {
-    current = raw; // plataforma sin vista previa en la web: la app puede intentarlo
-    setCard({ platform: "Enlace", state: "Sin vista previa", title: "Vista previa no disponible", meta: data.error, thumb: null });
+    setCard({ platform: "Enlace", state: "No compatible", title: "Esta plataforma no es compatible.", meta: "Prueba con un enlace de YouTube, Vimeo, TikTok, SoundCloud, Dailymotion, X o Reddit.", thumb: null });
+  } else if (status === 404) {
+    setCard({ platform: pname, state: "No disponible", title: "No se encontró un vídeo público con este enlace.", meta: "Puede ser privado, haberse eliminado o no existir.", thumb: null });
   } else {
-    setCard({ platform: pname, state: "No disponible", title: "No se pudo analizar el enlace", meta: data?.error || "Inténtalo de nuevo más tarde.", thumb: null });
+    setCard({ platform: pname, state: "No disponible", title: "No fue posible obtener información pública de este vídeo.", meta: "Inténtalo de nuevo más tarde.", thumb: null });
   }
-  dBtn.disabled = !current;
+  dBtn.hidden = !video;
   result.classList.add("pop"); setTimeout(() => result.classList.remove("pop"), 320);
 });
-dBtn.addEventListener("click", () => showDownloadWithFlux(current));
+urlIn.addEventListener("input", () => { if (!urlErr.hidden) fieldError(""); });
 
-// Planes: el pago se hace dentro de la app, con la cuenta de FLUX (la web no crea pagos ni conoce al usuario).
-const PLAN_NAMES = { PLUS: "PLUS", PREMIUM: "PREMIUM", FLUX_PLUS: "FLUX+" };
-$$("[data-buy]").forEach(b => b.addEventListener("click", () => {
-  const plan = PLAN_NAMES[b.dataset.buy], trial = b.hasAttribute("data-trial");
+function videoMedia(v) {
+  const box = el("div", { class: "fx-video" }), th = el("div", { class: "fx-thumb" }), info = el("div");
+  fillThumb(th, v.thumbnail);
+  info.append(el("b", {}, v.title || "Título no disponible"), el("small", {}, v.platform));
+  box.append(th, info);
+  return box;
+}
+function showDownloadWithFlux(v) {
   openDialog({
-    title: "Antes de continuar",
-    text: "Necesitas la aplicación de escritorio FLUX para utilizar tu plan y procesar tus archivos.",
+    title: "Descarga este vídeo con FLUX",
+    text: "Para descargar este vídeo necesitas FLUX Desktop instalado. FLUX permite descargar y procesar vídeos directamente desde tu equipo.",
+    media: videoMedia(v),
+    actions: [downloadAction(), { label: "Ya tengo FLUX", onClick: () => showAlreadyHaveFlux(v) }, cancelAction],
+  });
+}
+function showAlreadyHaveFlux(v) {
+  openDialog({
+    title: "Ya tengo FLUX",
+    text: "Abre FLUX Desktop y pega este enlace en Descargas.",
+    link: v.url,
+    steps: ["Abre FLUX.", "Ve a Descargas.", "Pega el enlace.", "Pulsa Analizar.", "Selecciona la configuración.", "Descarga el vídeo."],
+    notes: ["Descarga solo contenido propio o que tengas derecho a usar, respetando las condiciones de cada plataforma."],
+    actions: [{ label: "Copiar enlace", primary: true, onClick: async () => {
+      try { await navigator.clipboard.writeText(v.url); toast("Enlace copiado. Pégalo en FLUX → Descargas."); } catch { toast("No se pudo copiar. Selecciona el enlace y cópialo."); }
+    } }, cancelAction],
+  });
+}
+dBtn.addEventListener("click", () => video && showDownloadWithFlux(video));
+
+// Planes: el pago se completa en FLUX Desktop con la cuenta del usuario (la web no crea pagos ni conoce al usuario).
+const PLAN_INFO = {
+  PLUS: { name: "PLUS", price: "$5.99 USD/mes" },
+  PREMIUM: { name: "PREMIUM", price: "$12.99 USD/mes" },
+  FLUX_PLUS: { name: "FLUX+", price: "$19.99 USD/mes" },
+};
+$$("[data-buy]").forEach(b => b.addEventListener("click", () => {
+  const p = PLAN_INFO[b.dataset.buy], trial = b.hasAttribute("data-trial");
+  openDialog({
+    title: "Obtén FLUX",
+    text: "Para utilizar las funciones premium necesitas FLUX Desktop.",
     actions: [downloadAction(), { label: "Continuar al pago", onClick: () => openDialog({
-      title: trial ? "Prueba PLUS 3 días gratis" : `Contratar ${plan}`,
-      text: "El pago se hace de forma segura con Stripe desde la aplicación, para asociarlo a tu cuenta de FLUX:",
-      steps: ["Abre FLUX e inicia sesión con tu cuenta.", "Ve a la sección Planes.", `Elige ${plan}${trial ? " y pulsa Probar 3 días gratis" : ""}.`, "Completa el pago en la página de Stripe que se abre en tu navegador."],
-      note: "La sección Planes llega con la próxima versión de FLUX (1.0.1); la versión 1.0.0 todavía no la incluye.",
-      actions: [downloadAction()],
-    }) }],
+      title: "Continuar al pago",
+      text: "El pago se completa desde FLUX Desktop.",
+      steps: ["Abre FLUX e inicia sesión con tu cuenta.", "Ve a Planes.", `Elige ${p.name} y pulsa ${trial ? "«Probar 3 días gratis»" : "el botón de compra"}.`, "Completa el pago en la página segura de Stripe que se abre en tu navegador."],
+      notes: [
+        trial ? `${p.name}: 3 días gratis. Si no cancelas antes de que termine la prueba, se cobran ${p.price} y la suscripción se renueva cada mes.` : `${p.name}: ${p.price}, con renovación mensual. Puedes cancelar cuando quieras.`,
+        "La sección Planes llega con la próxima versión de FLUX (1.0.1); la versión 1.0.0 todavía no la incluye.",
+      ],
+      actions: [downloadAction(), cancelAction],
+    }) }, cancelAction],
   });
 }));
 

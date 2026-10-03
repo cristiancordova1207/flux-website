@@ -184,16 +184,17 @@
   <div class="wrap dlr-grid">
     <div class="rv">
       <span class="tag pink">Smart Downloader</span>
-      <h2 id="dlr-t">Descarga tu video con FLUX.</h2>
-      <p class="lede">Pega el enlace de un video y comprueba su vista previa. La descarga se hace en la aplicación FLUX.</p>
+      <h2 id="dlr-t">Descarga tu vídeo con FLUX.</h2>
+      <p class="lede">Pega el enlace de un vídeo y comprueba su vista previa. La descarga se realiza con FLUX Desktop.</p>
       <form class="url-form" id="urlForm" novalidate>
         <svg class="i" aria-hidden="true"><use href="#i-link"/></svg>
-        <label class="sr" for="url">Enlace del video</label>
-        <input id="url" type="url" inputmode="url" placeholder="Pega aquí el enlace del video" autocomplete="off" maxlength="2048" required>
-        <button class="go" type="submit" aria-label="Detectar video"><svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        <label class="sr" for="url">URL del vídeo</label>
+        <input id="url" type="url" inputmode="url" placeholder="Pega una URL de vídeo..." autocomplete="off" maxlength="2048" required>
+        <button class="go go-text" type="submit">Analizar <svg class="i" aria-hidden="true"><use href="#i-arrow"/></svg></button>
       </form>
+      <p class="form-err" id="urlErr" role="alert" hidden></p>
       <div class="hints">
-        <span class="chip">YouTube</span><span class="chip">Vimeo</span><span class="chip">TikTok</span><span class="chip">SoundCloud</span><span class="chip">Dailymotion</span>
+        <span class="chip">YouTube</span><span class="chip">Vimeo</span><span class="chip">TikTok</span><span class="chip">SoundCloud</span><span class="chip">Dailymotion</span><span class="chip">X</span><span class="chip">Reddit</span>
       </div>
     </div>
 
@@ -207,16 +208,16 @@
             <div>
               <div class="badges" style="margin:0 0 10px"><span class="badge" id="dPlatform">Vista previa</span><span class="badge" id="dState">Esperando enlace</span></div>
               <h3 id="dTitle">Pega un enlace para ver su vista previa</h3>
-              <p class="meta" id="dMeta">Mostramos el título y la miniatura públicos del video, si la plataforma los ofrece.</p>
+              <p class="meta" id="dMeta">Mostramos el título, el autor y la miniatura públicos del vídeo, si la plataforma los ofrece.</p>
             </div>
           </div>
           <div class="opts opts-one">
-            <button class="btn btn-primary" id="dDownload" type="button" disabled>Descargar con FLUX <svg class="i" aria-hidden="true"><use href="#i-down"/></svg></button>
+            <button class="btn btn-primary" id="dDownload" type="button" hidden>Descargar vídeo <svg class="i" aria-hidden="true"><use href="#i-down"/></svg></button>
           </div>
         </div>
-        <div class="scan" aria-hidden="true"><span><i class="spin"></i><b id="dStage">Analizando enlace…</b></span></div>
+        <div class="scan" aria-hidden="true"><span class="scan-box"><span class="scan-row"><i class="spin"></i><b id="dStage">Analizando vídeo...</b></span><span class="scan-bar"><i id="dBar"></i></span></span></div>
       </div>
-      <p class="demo-note"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg>La web solo consulta información pública del enlace; la animación de análisis es de la interfaz. La descarga real se hace en la aplicación FLUX.</p>
+      <p class="demo-note"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg>Esta página no descarga el vídeo. La descarga se realiza mediante FLUX Desktop. La animación de análisis es solo de la interfaz.</p>
     </div>
   </div>
 </section>
@@ -539,7 +540,7 @@
     </div>
     <div class="plan-row">
       <div class="plan rv"><span class="ic mint"><svg class="i" aria-hidden="true"><use href="#i-spark"/></svg></span><span class="pname" style="color:#15803D">FREE</span><span class="cred">3 créditos/día</span><span class="price">$0</span><a class="btn btn-light btn-sm" data-download href="https://github.com/cristiancordova1207/flux-releases/releases/latest/download/FLUX-Setup.exe">Empezar gratis</a></div>
-      <div class="plan rv" style="--d:.05s"><span class="ic sky"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg></span><span class="pname" style="color:#0369A1">PLUS</span><span class="cred">80 créditos/semana</span><span class="price">$5.99<small> USD/mes</small></span><span class="ptrial">3 días gratis</span><span class="pnote">Después $5.99 USD/mes</span><div class="plan-btns"><button class="btn btn-primary btn-sm" type="button" data-buy="PLUS" data-trial>Probar 3 días gratis</button><button class="btn btn-light btn-sm" type="button" data-buy="PLUS">Comprar ahora</button></div></div>
+      <div class="plan rv" style="--d:.05s"><span class="ic sky"><svg class="i" aria-hidden="true"><use href="#i-bolt"/></svg></span><span class="pname" style="color:#0369A1">PLUS</span><span class="cred">80 créditos/semana</span><span class="price">$5.99<small> USD/mes</small></span><span class="ptrial">Prueba gratis 3 días</span><span class="pnote">Después $5.99 USD/mes</span><div class="plan-btns"><button class="btn btn-primary btn-sm" type="button" data-buy="PLUS" data-trial>Probar 3 días gratis</button><button class="btn btn-light btn-sm" type="button" data-buy="PLUS">Comprar ahora</button></div></div>
       <div class="plan rv" style="--d:.1s"><span class="ic lav"><svg class="i" aria-hidden="true"><use href="#i-gauge"/></svg></span><span class="pname" style="color:#5B4BD6">PREMIUM</span><span class="cred">300 créditos/semana</span><span class="price">$12.99<small> USD/mes</small></span><span class="pnote">Sin período de prueba</span><div class="plan-btns"><button class="btn btn-light btn-sm" type="button" data-buy="PREMIUM">Comprar</button></div></div>
       <div class="plan top rv" style="--d:.15s"><span class="ic pink"><svg class="i" aria-hidden="true"><use href="#i-spark"/></svg></span><span class="pname" style="color:#A3215F">FLUX+</span><span class="cred">1000 créditos/semana</span><span class="price">$19.99<small> USD/mes</small></span><span class="pnote">Sin período de prueba</span><div class="plan-btns"><button class="btn btn-primary btn-sm" type="button" data-buy="FLUX_PLUS">Comprar</button></div></div>
     </div>
@@ -557,7 +558,7 @@
     </div>
     <div class="faq-list rv" style="--d:.06s">
       <details><summary>¿FLUX es gratis?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Puedes descargar e instalar FLUX gratis. El plan Free incluye 3 créditos al día. PLUS ($5.99), PREMIUM ($12.99) y FLUX+ ($19.99) son mensuales, en USD; PLUS incluye 3 días gratis.</p></details>
-      <details><summary>¿Puedo descargar desde esta web?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>No. Esta web solo muestra la vista previa pública de un enlace (título y miniatura). Las descargas se hacen en la aplicación FLUX para Windows.</p></details>
+      <details><summary>¿Puedo descargar desde esta web?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>No. Esta web solo muestra la vista previa pública de un enlace (título y miniatura). Esta página no descarga vídeos: la descarga se realiza mediante FLUX Desktop para Windows.</p></details>
       <details><summary>¿Mis archivos se suben a algún servidor?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>La conversión, la transcripción, la separación de audio y la limpieza de metadatos se ejecutan en tu equipo. Para descargar desde una URL, FLUX se conecta al sitio de origen.</p></details>
       <details><summary>¿Qué necesito para usarlo?<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Un PC con Windows 10 u 11 de 64 bits. FLUX incluye los motores que necesita, así que no tienes que instalar nada más.</p></details>
       <details><summary>Windows dice que la app no es reconocida<svg class="i" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>Es el aviso habitual de SmartScreen con aplicaciones nuevas. Pulsa «Más información» y después «Ejecutar de todas formas».</p></details>
@@ -621,7 +622,7 @@
       <div><a class="logo" href="#main" aria-label="FLUX, volver arriba"><svg aria-hidden="true"><use href="#logo"/></svg>FLUX</a><p>Descarga, convierte, recorta, transcribe y protege tus archivos desde un solo lugar.</p></div>
       <nav aria-label="Producto"><h4>Producto</h4><a href="#funciones">Funciones</a><a href="#planes">Planes</a><a data-download href="https://github.com/cristiancordova1207/flux-releases/releases/latest/download/FLUX-Setup.exe">Descargar</a></nav>
       <nav aria-label="Soporte"><h4>Soporte</h4><a href="#preguntas">Preguntas frecuentes</a><a href="#contacto">Contacto</a></nav>
-      <nav aria-label="Legal"><h4>Legal</h4><a href="terminos.html">Términos y condiciones</a><a href="privacidad.html">Aviso de privacidad</a><a href="cookies.html">Política de cookies</a><a href="cancelacion.html">Cancelación y suscripciones</a><a href="licencias.html">Licencias de terceros</a><a href="contacto.html">Contacto y soporte</a></nav>
+      <nav aria-label="Legal"><h4>Legal</h4><a href="terminos.html">Términos y condiciones</a><a href="privacidad.html">Aviso de privacidad</a><a href="cookies.html">Política de cookies</a><a href="cancelacion.html">Suscripciones y cancelaciones</a><a href="licencias.html">Licencias</a><a href="contacto.html">Contacto</a></nav>
     </div>
     <div class="foot-bottom"><span>© 2026 FLUX</span><span>Usa FLUX solo con contenido que tengas derecho a descargar.</span></div>
   </div>
