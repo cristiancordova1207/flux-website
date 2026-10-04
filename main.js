@@ -235,45 +235,48 @@ dBtn.addEventListener("click", () => video && showDownloadWithFlux(video));
 
 // Planes: el pago se completa en FLUX Desktop con la cuenta del usuario (la web no crea pagos ni conoce al usuario).
 // Los datos del plan se leen de su tarjeta: el modal no puede mostrar otro precio que el de la tarjeta.
-function planFromCard(code) {
+// PLUS tiene dos opciones (como en la app): «Probar 3 días gratis» y «Comprar ahora» (cobro inmediato, sin prueba).
+function planFromCard(code, trial) {
   const c = document.querySelector(`[data-plan="${code}"]`);
   if (!c) return null;
   const txt = sel => (c.querySelector(sel)?.textContent || "").replace(/\s+/g, " ").trim();
-  return { code, name: txt(".pname"), price: txt(".price"), credits: txt(".cred"), trial: code === "PLUS" };
+  return { code, name: txt(".pname"), price: txt(".price"), credits: txt(".cred"), trial: code === "PLUS" && trial };
 }
+const monthly = p => p.price.replace(" / mes", "");
 function planMedia(p) {
   const box = el("div", { class: "fx-plan" });
   const head = el("div", { class: "fx-plan-head" });
-  head.append(el("small", {}, "Has seleccionado"), el("b", {}, `FLUX ${p.name}`.replace("FLUX FLUX+", "FLUX+")));
+  head.append(el("small", {}, p.trial ? "Has elegido la prueba gratis de" : "Has seleccionado"), el("b", {}, `FLUX ${p.name}`.replace("FLUX FLUX+", "FLUX+")));
   box.append(head, el("p", { class: "fx-plan-price" }, p.price), el("p", { class: "fx-plan-cred" }, p.credits));
-  box.append(el("span", { class: p.trial ? "fx-plan-trial" : "fx-plan-notrial" }, p.trial ? "Prueba gratis 3 días" : "Sin prueba gratuita"));
+  box.append(el("span", { class: p.trial ? "fx-plan-trial" : "fx-plan-notrial" }, p.trial ? "3 días gratis" : p.code === "PLUS" ? "Compra inmediata, sin prueba" : "Sin prueba gratuita"));
   return box;
 }
+const renewal = p => (p.trial
+  ? `3 días gratis y después ${monthly(p)} al mes, con renovación automática hasta que canceles. Si cancelas durante la prueba, no hay cobro.`
+  : `Cobro de ${monthly(p)} al contratar y después cada mes, con renovación automática hasta que canceles. Puedes cancelar cuando quieras, sin penalización.`);
+const legalLinks = [["terminos", "Términos"], ["cancelacion", "Cancelación"], ["reembolsos", "Reembolsos"]];
 function showGetFlux(p) {
   openDialog({
     title: "Descarga FLUX para continuar",
     text: "Para comprar un plan de FLUX necesitas utilizar la aplicación de escritorio. Descarga FLUX para acceder a tus créditos, herramientas y suscripción.",
     media: planMedia(p),
-    notes: [p.trial ? "PLUS: 3 días gratis y después $5.99 USD al mes, con renovación automática hasta que canceles." : `${p.price.replace(" / mes", "")} al mes, con renovación automática hasta que canceles.`],
-    links: [["terminos", "Términos"], ["cancelacion", "Cancelación"], ["reembolsos", "Reembolsos"]],
-    actions: [downloadAction(), { label: "Ya tengo FLUX", onClick: () => showOpenFlux(p) }, cancelAction],
+    notes: [renewal(p)],
+    links: legalLinks,
+    actions: [downloadAction(), { label: "Continuar al pago", onClick: () => showPayInApp(p) }, cancelAction],
   });
 }
-function showOpenFlux(p) {
+function showPayInApp(p) {
   openDialog({
-    title: "Abre FLUX para continuar",
-    text: "Puedes realizar tu compra desde la sección Planes de la aplicación.",
+    title: "Continuar al pago",
+    text: "El pago se completa en FLUX Desktop, con tu cuenta, en la página segura de Stripe. Esta web no cobra ni crea suscripciones.",
     media: planMedia(p),
-    steps: ["Abre FLUX en tu computadora e inicia sesión.", "Ve a la sección Planes.", `Elige ${p.name}${p.trial ? " (puedes empezar con la prueba gratis de 3 días)" : ""}.`, "Completa el pago en la página segura de Stripe que se abre en tu navegador."],
-    notes: [
-      p.trial ? "Prueba de 3 días: si no cancelas antes de que termine, se cobran $5.99 USD y la suscripción se renueva cada mes. Si cancelas durante la prueba, no hay cobro." : `Cobro automático de ${p.price.replace(" / mes", "")} cada mes hasta que canceles. Puedes cancelar cuando quieras, sin penalización, desde FLUX (Planes → Gestionar suscripción).`,
-      "La sección Planes llega con la próxima versión de FLUX (1.0.1); la versión 1.0.0 todavía no la incluye.",
-    ],
-    links: [["terminos", "Términos"], ["cancelacion", "Cancelación"], ["reembolsos", "Reembolsos"], ["privacidad", "Privacidad"]],
-    actions: [{ label: "Volver", onClick: () => showGetFlux(p) }, { label: "Cerrar", primary: true, onClick: () => dlg.close() }],
+    steps: ["Abre FLUX en tu computadora e inicia sesión.", "Ve a la sección Planes.", `En ${p.name}, pulsa «${p.trial ? "Probar 3 días gratis" : p.code === "PLUS" ? "Comprar ahora" : `Comprar ${p.name}`}».`, "Revisa el precio y la renovación y confirma el pago en la página de Stripe que se abre en tu navegador."],
+    notes: [renewal(p), "La sección Planes llega con la próxima versión de FLUX (1.0.1); la versión 1.0.0 todavía no la incluye."],
+    links: [...legalLinks, ["privacidad", "Privacidad"]],
+    actions: [{ label: "Volver", onClick: () => showGetFlux(p) }, { label: "Descargar FLUX", href: installerUrl() }, { label: "Cerrar", primary: true, onClick: () => dlg.close() }],
   });
 }
-$$("[data-buy]").forEach(b => b.addEventListener("click", () => { const p = planFromCard(b.dataset.buy); if (p) showGetFlux(p); }));
+$$("[data-buy]").forEach(b => b.addEventListener("click", () => { const p = planFromCard(b.dataset.buy, b.hasAttribute("data-trial")); if (p) showGetFlux(p); }));
 
 // Privacy Lab: limpiar metadatos (ejemplo)
 const insp = $("#insp");
