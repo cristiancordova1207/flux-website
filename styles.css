@@ -767,3 +767,14 @@ footer { background: #fff; border-top: 1px solid var(--line); padding: 60px 0 30
 .fx-plan-trial, .fx-plan-notrial { justify-self: start; margin-top: 4px; font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 99px; }
 .fx-plan-trial { background: #FEF3C7; color: #92400E; }
 .fx-plan-notrial { background: #F3F2FA; color: var(--muted); }
+/* Legal: datos del proveedor y enlaces legales en el modal de compra */
+.legal .prov { display: grid; grid-template-columns: max-content 1fr; gap: 8px 18px; margin-top: 10px; font-size: 15px; }
+.legal .prov dt { color: var(--muted); font-weight: 600; }
+.legal .prov dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+.legal h3 { font-size: 16px; margin: 18px 0 6px; }
+.legal-prov { font-size: 12.5px; color: var(--muted); margin-bottom: 18px; }
+.foot-bottom a { text-decoration: underline; }
+.fx-links { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; font-weight: 600; }
+.fx-links a { color: #4B3CC9; text-decoration: underline; }
+.demo-note a, .plans-note a { color: #4B3CC9; text-decoration: underline; }
+@media (max-width: 560px) { .legal .prov { grid-template-columns: 1fr; gap: 2px; } .legal .prov dd { margin-bottom: 8px; } }

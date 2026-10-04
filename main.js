@@ -82,7 +82,7 @@ function el(tag, attrs = {}, text = "") {
   if (text) n.textContent = text;
   return n;
 }
-function openDialog({ title, text, media = null, link = "", steps = [], notes = [], actions = [] }) {
+function openDialog({ title, text, media = null, link = "", steps = [], notes = [], links = [], actions = [] }) {
   $("#fxTitle").textContent = title;
   $("#fxText").textContent = text;
   const extra = $("#fxExtra");
@@ -91,6 +91,7 @@ function openDialog({ title, text, media = null, link = "", steps = [], notes = 
   if (link) extra.append(el("p", { class: "fx-link" }, link));
   if (steps.length) { const ol = el("ol", { class: "fx-steps" }); steps.forEach(s => ol.append(el("li", {}, s))); extra.append(ol); }
   notes.forEach(n => extra.append(el("p", { class: "fx-note" }, n)));
+  if (links.length) { const p = el("p", { class: "fx-links" }); links.forEach(([href, label]) => p.append(el("a", { href }, label))); extra.append(p); }
   $("#fxActions").replaceChildren(...actions.map(a => {
     const cls = `btn ${a.primary ? "btn-primary" : "btn-light"}`;
     const b = a.href ? el("a", { class: cls, href: a.href, rel: "noopener" }, a.label) : el("button", { class: cls, type: "button" }, a.label);
@@ -253,6 +254,8 @@ function showGetFlux(p) {
     title: "Descarga FLUX para continuar",
     text: "Para comprar un plan de FLUX necesitas utilizar la aplicación de escritorio. Descarga FLUX para acceder a tus créditos, herramientas y suscripción.",
     media: planMedia(p),
+    notes: [p.trial ? "PLUS: 3 días gratis y después $5.99 USD al mes, con renovación automática hasta que canceles." : `${p.price.replace(" / mes", "")} al mes, con renovación automática hasta que canceles.`],
+    links: [["terminos", "Términos"], ["cancelacion", "Cancelación"], ["reembolsos", "Reembolsos"]],
     actions: [downloadAction(), { label: "Ya tengo FLUX", onClick: () => showOpenFlux(p) }, cancelAction],
   });
 }
@@ -263,9 +266,10 @@ function showOpenFlux(p) {
     media: planMedia(p),
     steps: ["Abre FLUX en tu computadora e inicia sesión.", "Ve a la sección Planes.", `Elige ${p.name}${p.trial ? " (puedes empezar con la prueba gratis de 3 días)" : ""}.`, "Completa el pago en la página segura de Stripe que se abre en tu navegador."],
     notes: [
-      p.trial ? "Prueba de 3 días: si no cancelas antes de que termine, se cobra el precio mensual y la suscripción se renueva cada mes." : "La suscripción se renueva cada mes. Puedes cancelarla cuando quieras desde FLUX (Planes → Gestionar suscripción).",
+      p.trial ? "Prueba de 3 días: si no cancelas antes de que termine, se cobran $5.99 USD y la suscripción se renueva cada mes. Si cancelas durante la prueba, no hay cobro." : `Cobro automático de ${p.price.replace(" / mes", "")} cada mes hasta que canceles. Puedes cancelar cuando quieras, sin penalización, desde FLUX (Planes → Gestionar suscripción).`,
       "La sección Planes llega con la próxima versión de FLUX (1.0.1); la versión 1.0.0 todavía no la incluye.",
     ],
+    links: [["terminos", "Términos"], ["cancelacion", "Cancelación"], ["reembolsos", "Reembolsos"], ["privacidad", "Privacidad"]],
     actions: [{ label: "Volver", onClick: () => showGetFlux(p) }, { label: "Cerrar", primary: true, onClick: () => dlg.close() }],
   });
 }
